@@ -197,14 +197,19 @@ export function watchRideStatusForCleanup(
   // ride completes we archive the Firestore thread, then batch-delete it.
   const rideRef = ref(database, `rides/${rideId}`);
 
+  let lastCleanedStatus: string | null = null;
   const callback = async (snap: any) => {
     const ride = snap.val();
-    if (ride?.status === 'completed') {
-      if (driverId) {
-        await archiveConversation(database, driverId, rideId, meta);
-      }
-      await deleteThread(rideId);
+    const status = ride?.status;
+    if (!['accepted', 'completed'].includes(status) || lastCleanedStatus === status) return;
+    lastCleanedStatus = status;
+
+    // A new accepted trip starts a fresh live thread. Preserve the previous
+    // conversation in the driver's inbox before clearing the live messages.
+    if (driverId) {
+      await archiveConversation(database, driverId, rideId, meta);
     }
+    await deleteThread(rideId);
   };
 
   onValue(rideRef, callback);

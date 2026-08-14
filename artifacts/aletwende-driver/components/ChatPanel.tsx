@@ -31,6 +31,9 @@ interface ChatPanelProps {
   pickupAddress: string;
   destinationAddress: string;
   rideStatus: string | null;
+  workflowType: 'direct_trip' | 'store_delivery' | null;
+  isBusy: boolean;
+  isOnline: boolean;
 }
 
 export default function ChatPanel({
@@ -43,6 +46,9 @@ export default function ChatPanel({
   pickupAddress,
   destinationAddress,
   rideStatus,
+  workflowType,
+  isBusy,
+  isOnline,
 }: ChatPanelProps) {
   const [messages, setMessages] = useState<Array<{ id: string; data: any }>>([]);
   const [inputText, setInputText] = useState('');
@@ -71,10 +77,12 @@ export default function ChatPanel({
 
   const handleSend = () => {
     const senderName = driverName.trim();
-    if (!inputText.trim() || !rideId || !senderName || !rideStatus) return;
+    if (!inputText.trim() || !rideId || !senderName || !rideStatus || !workflowType) return;
 
-    const terminalStatuses = ['completed', 'rejected', 'expired', 'cancelled', 'delivered'];
-    if (terminalStatuses.includes(rideStatus)) return;
+    const allowedStatuses = workflowType === 'direct_trip'
+      ? ['accepted', 'arrived', 'started']
+      : ['accepted', 'at_store', 'picked_up', 'delivered'];
+    if (!allowedStatuses.includes(rideStatus) || !isBusy || !isOnline) return;
 
     void sendDriverMessage(database, rideId, driverId, senderName, inputText.trim()).catch((error) => {
       console.error('[chat] failed to send driver message', error);
@@ -88,8 +96,11 @@ export default function ChatPanel({
 
   if (!visible) return null;
 
+  const allowedStatuses = workflowType === 'direct_trip'
+    ? ['accepted', 'arrived', 'started']
+    : ['accepted', 'at_store', 'picked_up', 'delivered'];
   const canSendMessages = Boolean(
-    rideId && rideStatus && !['completed', 'rejected', 'expired', 'cancelled', 'delivered'].includes(rideStatus)
+    rideId && workflowType && rideStatus && allowedStatuses.includes(rideStatus) && isBusy && isOnline
   );
 
   return (

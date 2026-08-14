@@ -98,6 +98,7 @@ const { width, height } = Dimensions.get('window');
 
 export default function Dashboard() {
   const [isOnline, setIsOnline] = useState(false);
+  const [isBusy, setIsBusy] = useState(false);
   const [userStatus, setUserStatus] = useState<'pending' | 'approved' | 'accepted' | 'rejected'>('pending');
   const [registrationCompleted, setRegistrationCompleted] = useState(false);
   const [locationSubscription, setLocationSubscription] = useState<any>(null);
@@ -247,9 +248,11 @@ export default function Dashboard() {
       const data = snapshot.val();
       if (data) {
         setIsOnline(data.isOnline === true);
+        setIsBusy(data.isBusy === true);
         sliderX.setValue(data.isOnline ? SLIDE_RANGE : 0);
       } else {
         setIsOnline(false);
+        setIsBusy(false);
         sliderX.setValue(0);
       }
     });
@@ -651,6 +654,9 @@ export default function Dashboard() {
         pickupAddress={chatRideInfo?.pickupAddress || 'Pickup'}
         destinationAddress={chatRideInfo?.destinationAddress || 'Destination'}
         rideStatus={activeRideStatus}
+        workflowType={workflowType}
+        isBusy={isBusy}
+        isOnline={isOnline}
       />
 
       {/* INBOX PANEL - past conversations */}
