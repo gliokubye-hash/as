@@ -212,9 +212,11 @@ export default function Dashboard() {
         // Store driver profile data for ride acceptance - include ALL fields
         setDriverData({
           profile: {
-            firstName: data.firstName || '',
-            lastName: data.lastName || '',
-            profilePicture: data.profilePicture || '',
+            // Registration stores names under `profile`; keep top-level fallbacks
+            // for older driver documents created before that structure existed.
+            firstName: data.profile?.firstName || data.firstName || '',
+            lastName: data.profile?.lastName || data.lastName || '',
+            profilePicture: data.profile?.profilePicture || data.profilePicture || '',
           },
           vehicle: {
             brand: data.vehicleBrand || '',

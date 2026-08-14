@@ -70,12 +70,13 @@ export default function ChatPanel({
   }, [visible, rideId]);
 
   const handleSend = () => {
-    if (!inputText.trim() || !rideId || !driverName || !rideStatus) return;
+    const senderName = driverName.trim();
+    if (!inputText.trim() || !rideId || !senderName || !rideStatus) return;
 
     const terminalStatuses = ['completed', 'rejected', 'expired', 'cancelled', 'delivered'];
     if (terminalStatuses.includes(rideStatus)) return;
 
-    void sendDriverMessage(database, rideId, driverId, driverName, inputText.trim()).catch((error) => {
+    void sendDriverMessage(database, rideId, driverId, senderName, inputText.trim()).catch((error) => {
       console.error('[chat] failed to send driver message', error);
     });
     setInputText('');
