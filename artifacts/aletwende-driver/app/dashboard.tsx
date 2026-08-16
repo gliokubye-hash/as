@@ -651,7 +651,7 @@ export default function Dashboard() {
   if (activeTab === 'settings') {
     return <DriverSettings driverData={driverData} onBack={() => setActiveTab('home')} onNavigate={(route) => {
       if (route === 'Vehicle and Documents') router.push('/vehicle-information');
-      else if (route === 'Security') router.push('/forgot-password');
+      else if (route.toLowerCase() === 'security') router.push('/forgot-password');
       else Alert.alert(route, 'This section is coming soon.');
     }} />;
   }

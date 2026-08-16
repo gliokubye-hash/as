@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { collection, onSnapshot, orderBy, query, where } from 'firebase/firestore';
+import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { firestore } from '@/config/firebase';
 
 type Period = 'today' | 'week' | 'month';
@@ -32,7 +32,7 @@ export function useDriverTripHistory(driverId: string | null, period: Period) {
     if (!driverId) { setTrips([]); setLoading(false); return; }
     setLoading(true);
     setError(null);
-    const q = query(collection(firestore, 'orders'), where('driverId', '==', driverId), orderBy('createdAt', 'desc'));
+    const q = query(collection(firestore, 'orders'), where('driverId', '==', driverId));
     return onSnapshot(q, (snapshot) => {
       const next = snapshot.docs.map((item) => {
         const data = item.data() as any;
@@ -49,7 +49,7 @@ export function useDriverTripHistory(driverId: string | null, period: Period) {
       });
       setTrips(next); setLoading(false);
     }, () => { setError('Unable to load trip history.'); setLoading(false); });
-  }, [driverId]);
+  }, [driverId, period]);
 
   const filteredTrips = useMemo(() => {
     const now = new Date();
