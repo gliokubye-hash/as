@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'expo-router';
 import {
   View,
   Text,
+  Alert,
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
@@ -93,10 +95,13 @@ import DriverMap from '@/components/DriverMap';
 import { useActiveTrip } from '@/hooks/useActiveTrip';
 import { createGeoFireObject } from '@/utils/geofire';
 import { getUnreadCount, listenForClientMessages, autoDeleteReadMessages, watchRideStatusForCleanup } from '@/utils/chat';
+import TripsHistory from '@/components/TripsHistory';
+import DriverSettings from '@/components/DriverSettings';
 
 const { width, height } = Dimensions.get('window');
 
 export default function Dashboard() {
+  const router = useRouter();
   const [isOnline, setIsOnline] = useState(false);
   const [isBusy, setIsBusy] = useState(false);
   const [userStatus, setUserStatus] = useState<'pending' | 'approved' | 'accepted' | 'rejected'>('pending');
@@ -637,6 +642,18 @@ export default function Dashboard() {
         <ActivityIndicator size="large" color="#006400" />
       </View>
     );
+  }
+
+  if (activeTab === 'trips') {
+    return <TripsHistory driverId={driverId} onBack={() => setActiveTab('home')} />;
+  }
+
+  if (activeTab === 'settings') {
+    return <DriverSettings driverData={driverData} onBack={() => setActiveTab('home')} onNavigate={(route) => {
+      if (route === 'Vehicle and Documents') router.push('/vehicle-information');
+      else if (route === 'Security') router.push('/forgot-password');
+      else Alert.alert(route, 'This section is coming soon.');
+    }} />;
   }
 
   return (
